@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Cable Selection Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .navbar {
+            background-color: #22ADC9;
+            padding: 10px;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 0 15px;
+        }
+        .result {
+            font-size: 1.2em;
+            color: #0d6efd;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <a href="https://anocab.com">Home</a>
+    <a href="https://anocab.com/index.php/products/">Products</a>
+    <a href="#">Wire Calculator</a>
+    <a href="https://anocab.com/index.php/about/">About Us</a>
+    <a href="https://anocab.com/index.php/gallery/">Gallery</a>
+</nav>
+
+<div class="container">
+    <h2>Cable Selection Calculator</h2>
+    <form id="cableForm">
+        <div>
+            <label for="phase">Select Phase:</label>
+            <select id="phase" required>
+                <option value="">Choose Phase</option>
+                <option value="230">Single Phase (230V)</option>
+                <option value="430">Two Phase (430V)</option>
+                <option value="430">Three Phase (430V)</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="length">Length of Cable:</label>
+            <input type="number" id="length" placeholder="Enter length" required>
+            <select id="lengthUnit">
+                <option value="mtr">meters (m)</option>
+                <option value="ft">feet (ft)</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="material">Material Selection:</label>
+            <select id="material" required>
+                <option value="">Choose Material</option>
+                <option value="17.24">Copper</option>
+                <option value="28.264">Aluminium</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="power">Motor Power:</label>
+            <input type="number" id="power" placeholder="Enter power" required>
+            <select id="powerUnit">
+                <option value="kw">kW</option>
+                <option value="hp">Horsepower (HP)</option>
+                <option value="watt">Watt</option>
+            </select>
+        </div>
+
+        <button type="button" onclick="calculateCableSize()">Calculate</button>
+    </form>
+
+    <div id="resultContainer" class="result"></div>
+</div>
+
+<script>
+    function calculateCableSize() {
+        const phase = document.getElementById('phase').value;
+        let length = parseFloat(document.getElementById('length').value);
+        const lengthUnit = document.getElementById('lengthUnit').value;
+        const materialResistivity = parseFloat(document.getElementById('material').value);
+        let power = parseFloat(document.getElementById('power').value);
+        const powerUnit = document.getElementById('powerUnit').value;
+
+        // Constants
+        const powerFactor = 0.83;
+        const efficiency = 0.83;
+        const voltageDropPercent = 0.05;
+        const factor = phase == '230' ? 1 : 1.732;
+
+        // Convert length to meters if input is in feet
+        if (lengthUnit === 'ft') length *= 0.3048;
+
+        // Convert power to kilowatts if needed
+        if (powerUnit === 'hp') power *= 0.746;
+        else if (powerUnit === 'watt') power *= 0.001;
+
+        // Step 1: Full Load Current
+        const voltage = parseFloat(phase); // 230 for single phase, 430 for two/three phase
+        const fullLoadCurrent = (power * 1000) / (voltage * powerFactor * efficiency * factor);
+
+        // Step 2: Voltage Drop
+        const voltageDrop = voltage * voltageDropPercent;
+
+        // Step 3: Voltage Resistive Factor
+        const voltageResistFactor = fullLoadCurrent * materialResistivity * length / (factor * 1000);
+
+        // Step 4: Cable Size
+        const cableSize = voltageResistFactor / voltageDrop;
+        
+        // Step 5: Determine Cable Size
+        let finalCableSize;
+        if (cableSize <= 0.5) finalCableSize = 0.5;
+        else if (cableSize <= 0.75) finalCableSize = 0.75;
+        else if (cableSize <= 1) finalCableSize = 1;
+        else if (cableSize <= 1.5) finalCableSize = 1.5;
+        else if (cableSize <= 2.5) finalCableSize = 2.5;
+        else if (cableSize <= 4) finalCableSize = 4;
+        else if (cableSize <= 6) finalCableSize = 6;
+        else if (cableSize <= 10) finalCableSize = 10;
+        else if (cableSize <= 16) finalCableSize = 16;
+        else if (cableSize <= 25) finalCableSize = 25;
+        else if (cableSize <= 35) finalCableSize = 35;
+        else if (cableSize <= 50) finalCableSize = 50;
+        else if (cableSize <= 70) finalCableSize = 70;
+        else if (cableSize <= 95) finalCableSize = 95;
+        else if (cableSize <= 120) finalCableSize = 120;
+        else if (cableSize <= 150) finalCableSize = 150;
+        else finalCableSize = 'Contact support for larger cable sizes.';
+
+        // Display the result
+        document.getElementById('resultContainer').innerHTML =
+            `Required Cable Size: <strong>${finalCableSize}</strong> Sq MM`;
+    }
+</script>
+
+</body>
+</html>
